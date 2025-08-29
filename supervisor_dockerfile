@@ -1,0 +1,9 @@
+# Dockerfile.supervisor
+FROM my-base:22.04
+
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY conf.d/ /etc/supervisor/conf.d/
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

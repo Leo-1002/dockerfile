@@ -1,0 +1,13 @@
+# Dockerfile.redis
+FROM redis:6.2
+
+# 复制自定义配置
+COPY redis.conf /usr/local/etc/redis/redis.conf
+
+# 复制数据文件
+COPY dump.rdb /data/
+
+# 修改权限
+RUN chown redis:redis /data/dump.rdb
+
+CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]

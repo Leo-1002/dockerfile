@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  prometheus:
+    image: ghcr.io/leo-1002/monitoring-prometheus:v1
+    ports: ["9090:9090"]
+    user: "65534:65534"
+    volumes:
+      - ./data/prometheus:/prometheus:z
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command: --config.file=/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+
+  grafana:
+    image: ghcr.io/leo-1002/monitoring-grafana:v1
+    ports: ["3000:3000"]
+    user: "472:472"
+    volumes:
+      - ./data/grafana:/var/lib/grafana:z
+      - /root/monitoring/grafana.ini:/etc/grafana/grafana.ini:ro  # 关键修改：使用您指定的绝对路径
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+
+  alertmanager:
+    image: ghcr.io/leo-1002/monitoring-alertmanager:v1
+    ports: ["9093:9093"]
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/config.yml:ro
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+
+  redis:
+    image: ghcr.io/leo-1002/monitoring-redis:v1
+    ports: ["6379:6379"]
+    volumes:
+      - ./data/redis:/data:z
+    restart: unless-stopped
+    command: redis-server --requirepass yourpassword
+    environment:
+      - TZ=Asia/Shanghai

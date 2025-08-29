@@ -1,0 +1,15 @@
+# Dockerfile.custom-redis
+FROM my-base:22.04
+
+# 安装Redis
+RUN apt-get update && apt-get install -y redis-server && rm -rf /var/lib/apt/lists/*
+
+# 复制配置
+COPY redis.conf /etc/redis/redis.conf
+
+# 数据目录
+VOLUME /var/lib/redis
+
+EXPOSE 6379
+
+CMD ["/usr/bin/redis-server", "/etc/redis/redis.conf"]
